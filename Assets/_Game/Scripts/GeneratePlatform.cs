@@ -10,24 +10,27 @@ public class GeneratePlatform : MonoBehaviour
     [SerializeField] float startX = 0f;
 
     [Header("Generate Settings")]
-    [SerializeField] int tempMax = 10;
-    [SerializeField] float minXRange = 2f;
-    [SerializeField] float maxXRange = 5f;
+    [SerializeField] float minXRange = 1f;
+    [SerializeField] float maxXRange = 3f;
     [SerializeField] int minimumPlatformWidth = 2;
     [SerializeField] int maximumPlatformWidth = 10;
     [SerializeField] int minimumPlatformHeight = 2;
     [SerializeField] int maximumPlatformHeight = 8;
+    [SerializeField] int maximumLowerHeight = 5;
     [SerializeField] int maximumHigherHeight = 2;
-    [SerializeField] int maximumLowerHeight = 5 ;
+    [SerializeField] int defaultPlatformNumbers = 4;
 
     private int platformCount = 0;
     private Platform currentPlatform;
     private float currentX;
 
-    private void Awake()
+    private void Start()
     {
         currentPlatform = null;
-        GenerateNext();
+        for (int i = 0; i < defaultPlatformNumbers; i++)
+        {
+            GenerateNext();
+        }
     }
 
     private void Update()
@@ -44,14 +47,14 @@ public class GeneratePlatform : MonoBehaviour
         if (currentPlatform == null)
         {
             currentX = startX;
-            return currentPlatform = PlatformBuilder.Instance.CreatePlatform(startPlatformType, (int)startPlatformSize.x, (int)startPlatformSize.y, startX);
+            return currentPlatform = PlatformBuilder.Instance.CreatePlatform(startPlatformType, (int)startPlatformSize.x, (int)startPlatformSize.y, startX, true, platformCount);
         }
         else
         {
             int nextWidth = Random.Range(minimumPlatformWidth, maximumPlatformWidth);
 
             int nextMinHeight = currentPlatform.Height - maximumLowerHeight;
-            nextMinHeight = (int)Mathf.Clamp(nextMinHeight, 0, maximumPlatformHeight);
+            nextMinHeight = Mathf.Clamp(nextMinHeight, 0, maximumPlatformHeight);
             int nextMaxHeight = currentPlatform.Height + maximumHigherHeight;
             int nextHeight = Random.Range(nextMinHeight, nextMaxHeight + 1);
             nextHeight = Mathf.Clamp(nextHeight, minimumPlatformHeight, maximumPlatformHeight);
@@ -61,7 +64,7 @@ public class GeneratePlatform : MonoBehaviour
             Debug.Log("currentX " + currentX + " currentP " + currentPlatform.Width / 2f + " nextP " + nextWidth / 2f + " random " + randomX);
             currentX = nextX;
 
-            return currentPlatform = PlatformBuilder.Instance.CreatePlatform(currentPlatform.Type, nextWidth, nextHeight, nextX);
+            return currentPlatform = PlatformBuilder.Instance.CreatePlatform(currentPlatform.Type, nextWidth, nextHeight, nextX, false, platformCount);
         }
     }
 }

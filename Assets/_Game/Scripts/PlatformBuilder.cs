@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class PlatformBuilder : Singleton<PlatformBuilder>
 {
-    [SerializeField] List<SpriteSet> spriteSets = new List<SpriteSet>();
+    [SerializeField] List<PlatformSet> spriteSets = new List<PlatformSet>();
 
-    public Platform CreatePlatform(int type, int width, int height, float xPos)
+    public Platform CreatePlatform(int type, int width, int height, float xPos, bool isFirstPlatform = false, int platformId = 0)
     {
-        Platform platform = CreatePlatform(type, width, height);
+        Platform platform = CreatePlatform(type, width, height, isFirstPlatform, platformId);
         platform.transform.position = new Vector2(xPos, 0f);
         return platform;
     }
 
-    public Platform CreatePlatform(int type, int width, int height)
+    public Platform CreatePlatform(int type, int width, int height, bool isFirstPlatform = false, int platformId = 0)
     {
         if (width < 2 || height < 2)
         {
@@ -26,59 +26,67 @@ public class PlatformBuilder : Singleton<PlatformBuilder>
             return null;
         }
 
-        SpriteSet spriteSet = spriteSets[type];
+        PlatformSet spriteSet = spriteSets[type];
 
         GameObject platform = new GameObject("Platform_" + type.ToString());
+        Transform platformTf = platform.transform;
+
+        if (!isFirstPlatform)
+        {
+            GameObject pointCollider = new GameObject("Point Collider");
+            pointCollider.transform.parent = platform.transform;
+            pointCollider.AddComponent<PointCollider>().AddPointCollider(width, height, platformId);
+        }
 
         float firstSpawnX = -width / 2f;
         float firstSpawnY = height;
 
         for (int i = 0; i < width * height; i++)
         {
-            GameObject part = null;
+            GameUnit part = null;
             if (i / width == 0)
             {
                 if (i % width == 0)
                 {
-                    part = InstantiateSprite(spriteSet.TopLeft, platform.transform);
+                    part = SimplePool.Spawn(StringToPoolTypeEnum(type, "_TopLeft"), platformTf);
                 }
                 else if (i % width == width - 1)
                 {
-                    part = InstantiateSprite(spriteSet.TopRight, platform.transform);
+                    part = SimplePool.Spawn(StringToPoolTypeEnum(type, "_TopRight"), platformTf);
                 }
                 else
                 {
-                    part = InstantiateSprite(spriteSet.TopMiddle, platform.transform);
+                    part = SimplePool.Spawn(StringToPoolTypeEnum(type, "_TopMiddle"), platformTf);
                 }
             }
             else if (i / width == height - 1)
             {
                 if (i % width == 0)
                 {
-                    part = InstantiateSprite(spriteSet.BottomLeft, platform.transform);
+                    part = SimplePool.Spawn(StringToPoolTypeEnum(type, "_BottomLeft"), platformTf);
                 }
                 else if (i % width == width - 1)
                 {
-                    part = InstantiateSprite(spriteSet.BottomRight, platform.transform);
+                    part = SimplePool.Spawn(StringToPoolTypeEnum(type, "_BottomRight"), platformTf);
                 }
                 else
                 {
-                    part = InstantiateSprite(spriteSet.BottomMiddle, platform.transform);
+                    part = SimplePool.Spawn(StringToPoolTypeEnum(type, "_BottomMiddle"), platformTf);
                 }
             }
             else
             {
                 if (i % width == 0)
                 {
-                    part = InstantiateSprite(spriteSet.MiddleLeft, platform.transform);
+                    part = SimplePool.Spawn(StringToPoolTypeEnum(type, "_MiddleLeft"), platformTf);
                 }
                 else if (i % width == width - 1)
                 {
-                    part = InstantiateSprite(spriteSet.MiddleRight, platform.transform);
+                    part = SimplePool.Spawn(StringToPoolTypeEnum(type, "_MiddleRight"), platformTf);
                 }
                 else
                 {
-                    part = InstantiateSprite(spriteSet.MiddleMiddle, platform.transform);
+                    part = SimplePool.Spawn(StringToPoolTypeEnum(type, "_MiddleMiddle"), platformTf);
                 }
             }
             part.transform.localPosition = new Vector2(firstSpawnX + i % width, firstSpawnY - i / width);
@@ -91,34 +99,22 @@ public class PlatformBuilder : Singleton<PlatformBuilder>
         return platform.GetComponent<Platform>();
     }
 
-    private GameObject InstantiateSprite(Sprite sprite, Transform parent)
+    private PoolType StringToPoolTypeEnum(int typeId, string type)
     {
-        GameObject go = new GameObject(sprite.name);
-        go.AddComponent<SpriteRenderer>();
-        go.GetComponent<SpriteRenderer>().sprite = sprite; 
-        go.transform.parent = parent;
-        return go;
-    }
-
-    private GameObject InstantiateSprite(Sprite sprite, Vector3 position, Quaternion rotation,  Transform parent)
-    {
-        GameObject go = InstantiateSprite(sprite, parent);
-        go.transform.position = position;
-        go.transform.rotation = rotation;
-        return go;
+        return (PoolType)System.Enum.Parse(typeof(PoolType), "Type" + typeId + type);
     }
 }
 
 [Serializable]
-public class SpriteSet
+public class PlatformSet
 {
-    public Sprite TopLeft;
-    public Sprite TopMiddle;
-    public Sprite TopRight;
-    public Sprite MiddleLeft;
-    public Sprite MiddleMiddle;
-    public Sprite MiddleRight;
-    public Sprite BottomLeft;
-    public Sprite BottomMiddle;
-    public Sprite BottomRight;
+    public GameObject TopLeft;
+    public GameObject TopMiddle;
+    public GameObject TopRight;
+    public GameObject MiddleLeft;
+    public GameObject MiddleMiddle;
+    public GameObject MiddleRight;
+    public GameObject BottomLeft;
+    public GameObject BottomMiddle;
+    public GameObject BottomRight;
 }

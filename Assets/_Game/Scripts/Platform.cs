@@ -12,7 +12,7 @@ public class Platform : MonoBehaviour
     int _width;
     public int Width => _width;
 
-    public void Setup(int type, int height, int width)
+    public void Setup(int type, int width, int height)
     {
         _type = type;
         _height = height;
