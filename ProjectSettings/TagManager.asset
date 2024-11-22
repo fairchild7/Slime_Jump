@@ -42,3 +42,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: BackgroundOutline
+    uniqueID: 3183414237
+    locked: 0
+  - name: Background
+    uniqueID: 2092647743
+    locked: 0
+  - name: Environment
+    uniqueID: 1579470273
+    locked: 0
+  - name: Platform
+    uniqueID: 769174531
+    locked: 0

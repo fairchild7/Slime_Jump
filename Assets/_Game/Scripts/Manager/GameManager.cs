@@ -9,7 +9,7 @@ public class GameManager : Singleton<GameManager>
 {
     private static GameState gameState;
 
-    private static float normalDeltaTime = Time.deltaTime;
+    private static float normalDeltaTime;
     private static float pauseDeltaTime = 0f;
 
     private void Awake()
@@ -21,10 +21,11 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
+        normalDeltaTime = Time.deltaTime;
+
         ChangeState(GameState.MainMenu);
 
-        //CS_UIManager.Ins.OpenUI<UISplash>();
-        //CS_UIManager.Ins.GetUI<UISettings>().GetSetting();
+        UIManager.Instance.OpenUI<UIGameplay>();
     }
 
     
